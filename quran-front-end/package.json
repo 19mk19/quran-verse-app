@@ -2,8 +2,7 @@
   "name": "quran-front-end",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://19mk19.github.io/quran-verse-app",
-
+  "homepage": "/",
 
   "dependencies": {
     "@emotion/react": "^11.14.0",
