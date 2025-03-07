@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/quran-verse-app/static/css/main.66c710bc.css",
+    "main.js": "/quran-verse-app/static/js/main.c47f5f50.js",
+    "static/js/453.4cbee6e7.chunk.js": "/quran-verse-app/static/js/453.4cbee6e7.chunk.js",
+    "index.html": "/quran-verse-app/index.html",
+    "main.66c710bc.css.map": "/quran-verse-app/static/css/main.66c710bc.css.map",
+    "main.c47f5f50.js.map": "/quran-verse-app/static/js/main.c47f5f50.js.map",
+    "453.4cbee6e7.chunk.js.map": "/quran-verse-app/static/js/453.4cbee6e7.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.66c710bc.css",
+    "static/js/main.c47f5f50.js"
+  ]
+}
