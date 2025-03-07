@@ -1,3 +1,18 @@
+useEffect(() => {
+  // Test backend connectivity
+  const testBackend = async () => {
+    try {
+      console.log('Testing backend connection...');
+      const response = await axios.get('https://quran-verse-api.onrender.com/');
+      console.log('Backend is accessible:', response.data);
+    } catch (err) {
+      console.error('Backend test failed:', err.message);
+    }
+  };
+  
+  testBackend();
+}, []);
+
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Grid, Paper, Select, MenuItem, 
@@ -21,12 +36,13 @@ function App() {
   useEffect(() => {
     async function fetchLetters() {
       try {
-        const API_URL = process.env.REACT_APP_API_URL || 'https://quran-verse-api.onrender.com/';
+        const API_URL = 'https://quran-verse-api.onrender.com'; 
         
         const response = await axios.get(`${API_URL}/api/letters`);
         setLetters(response.data.letters);
       } catch (err) {
         // Error handling
+        console.log('Using API URL:', API_URL);
       }
     }
     
@@ -50,7 +66,7 @@ function App() {
         limit: 5
       });
       
-      const response = await axios.get('http://localhost:5000/api/search', {
+      const response = await axios.get(`${API_URL}/api/search`, {
         params: {
           letter: selectedLetter,
           position: position,
@@ -59,6 +75,8 @@ function App() {
       });
       
       console.log('API Response:', response.data);
+
+      console.log('Using API URL:', API_URL);
       
       if (response.data.verses && Array.isArray(response.data.verses)) {
         setVerses(response.data.verses);
@@ -88,7 +106,7 @@ function App() {
       // Get IDs of already displayed verses to exclude them
       const excludeIds = verses.map(verse => verse.id).join(',');
       
-      const response = await axios.get('http://localhost:5000/api/more_verses', {
+      const response = await axios.get(`${API_URL}/api/more_verses`, {
         params: {
           letter: selectedLetter,
           position: position,
