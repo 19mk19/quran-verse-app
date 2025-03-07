@@ -6,6 +6,8 @@ import {
 import axios from 'axios';
 import './App.css';
 
+
+
 function App() {
   const [letters, setLetters] = useState([]);
   const [selectedLetter, setSelectedLetter] = useState('');
@@ -19,11 +21,9 @@ function App() {
   useEffect(() => {
     async function fetchLetters() {
       try {
-        const API_URL = process.env.NODE_ENV === 'production' 
-          ? '/api/letters' 
-          : 'http://localhost:5000/api/letters';
+        const API_URL = process.env.REACT_APP_API_URL || 'https://quran-verse-api.onrender.com/';
         
-        const response = await axios.get(API_URL);
+        const response = await axios.get(`${API_URL}/api/letters`);
         setLetters(response.data.letters);
       } catch (err) {
         // Error handling
@@ -160,7 +160,15 @@ function App() {
               <InputLabel>Arabic Letter</InputLabel>
               <Select
                 value={selectedLetter}
-                onChange={(e) => setSelectedLetter(e.target.value)}
+                onChange={(event) => {
+                  // Add defensive programming to check if event exists and has expected properties
+                  if (event && event.target) {
+                    setSelectedLetter(event.target.value);
+                  } else {
+                    // For MUI v5, sometimes the value is passed directly
+                    setSelectedLetter(event);
+                  }
+                }}
                 label="Arabic Letter"
               >
                 {letters.map((letter) => (
