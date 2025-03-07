@@ -1,18 +1,3 @@
-useEffect(() => {
-  // Test backend connectivity
-  const testBackend = async () => {
-    try {
-      console.log('Testing backend connection...');
-      const response = await axios.get('https://quran-verse-api.onrender.com/');
-      console.log('Backend is accessible:', response.data);
-    } catch (err) {
-      console.error('Backend test failed:', err.message);
-    }
-  };
-  
-  testBackend();
-}, []);
-
 import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Grid, Paper, Select, MenuItem, 
@@ -21,9 +6,11 @@ import {
 import axios from 'axios';
 import './App.css';
 
-
-
 function App() {
+  // Define backend URL at the component level so it's accessible to all functions
+  const backendUrl = 'https://quran-verse-api.onrender.com';
+  console.log('Using backend URL:', backendUrl);
+  
   const [letters, setLetters] = useState([]);
   const [selectedLetter, setSelectedLetter] = useState('');
   const [position, setPosition] = useState('first');
@@ -32,17 +19,36 @@ function App() {
   const [showMoreLoading, setShowMoreLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Test backend connectivity
+  useEffect(() => {
+    const testBackend = async () => {
+      try {
+        console.log('Testing backend connection...');
+        const response = await axios.get(`${backendUrl}`);
+        console.log('Backend is accessible:', response.data);
+      } catch (err) {
+        console.error('Backend test failed:', err.message);
+      }
+    };
+    
+    testBackend();
+  }, []);
+
   // Fetch Arabic letters when component mounts
   useEffect(() => {
     async function fetchLetters() {
       try {
-        const API_URL = 'https://quran-verse-api.onrender.com'; 
-        
-        const response = await axios.get(`${API_URL}/api/letters`);
+        console.log('Fetching Arabic letters from:', `${backendUrl}/api/letters`);
+        const response = await axios.get(`${backendUrl}/api/letters`);
+        console.log('Letters response:', response.data);
         setLetters(response.data.letters);
       } catch (err) {
-        // Error handling
-        console.log('Using API URL:', API_URL);
+        console.error('Error fetching letters:', err);
+        setError('Failed to load Arabic letters: ' + err.message);
+        // Fallback letters
+        setLetters(['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 
+                  'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 
+                  'ن', 'ه', 'و', 'ي']);
       }
     }
     
@@ -61,12 +67,13 @@ function App() {
     
     try {
       console.log('Searching for verses with:', {
+        api: backendUrl,
         letter: selectedLetter,
         position: position,
         limit: 5
       });
       
-      const response = await axios.get(`${API_URL}/api/search`, {
+      const response = await axios.get(`${backendUrl}/api/search`, {
         params: {
           letter: selectedLetter,
           position: position,
@@ -74,9 +81,7 @@ function App() {
         }
       });
       
-      console.log('API Response:', response.data);
-
-      console.log('Using API URL:', API_URL);
+      console.log('API Response received:', response.data);
       
       if (response.data.verses && Array.isArray(response.data.verses)) {
         setVerses(response.data.verses);
@@ -87,7 +92,12 @@ function App() {
       
       setLoading(false);
     } catch (err) {
-      console.error('API Error:', err);
+      console.error('API Error details:', {
+        message: err.message,
+        url: `${backendUrl}/api/search`,
+        config: err.config,
+        response: err.response
+      });
       setError(`Failed to fetch verses: ${err.message}`);
       setLoading(false);
     }
@@ -106,7 +116,7 @@ function App() {
       // Get IDs of already displayed verses to exclude them
       const excludeIds = verses.map(verse => verse.id).join(',');
       
-      const response = await axios.get(`${API_URL}/api/more_verses`, {
+      const response = await axios.get(`${backendUrl}/api/more_verses`, {
         params: {
           letter: selectedLetter,
           position: position,
