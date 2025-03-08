@@ -147,11 +147,15 @@ function App() {
     
     // Function to check if a word has the letter in the specified position
     const hasLetterInPosition = (word) => {
-      if (position === 'first' && word.startsWith(letter)) return true;
-      if (position === 'last' && word.endsWith(letter)) return true;
-      if (position === 'middle' && word.length > 2) {
+      // Remove diacritical marks for better matching
+      const cleanWord = word.normalize('NFD')
+        .replace(/[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED]/g, '');
+      
+      if (position === 'first' && cleanWord.startsWith(letter)) return true;
+      if (position === 'last' && cleanWord.length > 0 && cleanWord[cleanWord.length - 1] === letter) return true;
+      if (position === 'middle' && cleanWord.length > 2) {
         // Check if letter is in the middle (not first or last character)
-        return word.substring(1, word.length - 1).includes(letter);
+        return cleanWord.substring(1, cleanWord.length - 1).includes(letter);
       }
       return false;
     };
