@@ -380,7 +380,7 @@ function App() {
 
   <Typography variant="body2" color="textSecondary">
    
-    Note: Verses are from the 30th juz (para) exclusively to use shorter verses only. Audio from Mishary Rashid Alafasy.
+    Note: Verses are from the 30th juz (para) exclusively to use shorter verses only. Audio from Qari Mishary Rashid Alafasy.
 
   </Typography>
 </Box>
