@@ -6,24 +6,6 @@ import {
 import axios from 'axios';
 import './App.css';
 
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-    <Analytics />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
-
 function App() {
   // Define backend URL at the component level so it's accessible to all functions
   const backendUrl = 'https://quran-verse-api.onrender.com';
@@ -36,7 +18,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showMoreLoading, setShowMoreLoading] = useState(false);
   const [error, setError] = useState('');
-
   // Test backend connectivity
   useEffect(() => {
     const testBackend = async () => {
@@ -51,7 +32,6 @@ function App() {
     
     testBackend();
   }, []);
-
   // Fetch Arabic letters when component mounts
   useEffect(() => {
     async function fetchLetters() {
@@ -72,7 +52,6 @@ function App() {
     
     fetchLetters();
   }, []);
-
   const searchVerses = async () => {
     if (!selectedLetter) {
       setError('Please select a letter');
@@ -157,7 +136,6 @@ function App() {
       setShowMoreLoading(false);
     }
   };
-
   // Component to highlight words with the letter in the specified position
   const HighlightedText = ({ text, letter, position }) => {
     // Split text into words
@@ -196,7 +174,6 @@ function App() {
       </div>
     );
   };
-
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
       <Typography variant="h3" component="h1" align="center" gutterBottom>
@@ -320,5 +297,4 @@ function App() {
     </Container>
   );
 }
-
 export default App;
