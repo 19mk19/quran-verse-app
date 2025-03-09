@@ -160,67 +160,41 @@ function App() {
     }
   };
 
+  // Component to highlight words with the letter in the specified position
   const HighlightedText = ({ text, letter, position }) => {
     // Split text into words
     const words = text.split(' ');
     
     // Function to check if a word has the letter in the specified position
     const hasLetterInPosition = (word) => {
-      if (!word) return false;
-      
       // Remove diacritical marks for better matching
-      const removeDiacritics = (str) => {
-        return str.replace(/[\u064B-\u065F\u0670]/g, '');
-      };
+      const cleanWord = word.normalize('NFD')
+        .replace(/[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED]/g, '');
       
-      const cleanWord = removeDiacritics(word);
-      
-      if (position === 'first' && cleanWord.startsWith(letter)) {
-        return true;
-      }
-      
-      if (position === 'last') {
-        // Find the last actual letter (not diacritic)
-        let lastLetter = null;
-        for (let i = cleanWord.length - 1; i >= 0; i--) {
-          const char = cleanWord[i];
-          // Skip if it's a diacritic
-          if (!/[\u064B-\u065F\u0670]/.test(char)) {
-            lastLetter = char;
-            break;
-          }
-        }
-        
-        return lastLetter === letter;
-      }
-      
+      if (position === 'first' && cleanWord.startsWith(letter)) return true;
+      if (position === 'last' && cleanWord.length > 0 && cleanWord[cleanWord.length - 1] === letter) return true;
       if (position === 'middle' && cleanWord.length > 2) {
         // Check if letter is in the middle (not first or last character)
-        const middle = cleanWord.substring(1, cleanWord.length - 1);
-        return middle.includes(letter);
+        return cleanWord.substring(1, cleanWord.length - 1).includes(letter);
       }
-      
       return false;
     };
     
     return (
       <div className="quran-text" style={{ textAlign: 'right', direction: 'rtl' }}>
-        {words.map((word, index) => {
-          const shouldHighlight = hasLetterInPosition(word);
-          return (
-            <span
-              key={index}
-              style={{
-                backgroundColor: shouldHighlight ? '#ffeb3b80' : 'transparent',
-                padding: shouldHighlight ? '2px' : '0',
-                marginRight: '4px',
-                display: 'inline-block'
-              }}
-            >
-              {word}
-            </span>
-          );
-        })}
+        {words.map((word, index) => (
+          <span
+            key={index}
+            style={{
+              backgroundColor: hasLetterInPosition(word) ? '#ffeb3b80' : 'transparent',
+              padding: hasLetterInPosition(word) ? '2px' : '0',
+              marginRight: '4px',
+              display: 'inline-block'
+            }}
+          >
+            {word}
+          </span>
+        ))}
       </div>
     );
   };
