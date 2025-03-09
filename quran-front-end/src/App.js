@@ -375,6 +375,8 @@ function App() {
   </Typography>
   <Typography variant="body2" color="textSecondary">
     Found an issue? <a href="mailto:your-email@example.com" style={{ color: 'inherit' }}>Contact Us</a>
+    Note: Verses are from the 30th juz (para) exclusively to use shorter verses only. Audio from Mishary Rashid Alafasy.
+
   </Typography>
 </Box>
 
