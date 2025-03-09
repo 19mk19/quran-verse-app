@@ -305,10 +305,14 @@ function App() {
       </Typography>
       
       {verses.length === 0 && !loading && !lettersLoading && (
-        <Typography align="center" style={{ marginTop: '2rem' }}>
-          No verses found. Try a different search.
-        </Typography>
-      )}
+      <Typography align="center" style={{ marginTop: '2rem' }}>
+        {!selectedLetter 
+          ? 'Please select a letter to start your search.' 
+          : error 
+            ? error 
+            : 'Click "Search" to find verses with the selected criteria.'}
+        </Typography>   
+        )}
       
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
