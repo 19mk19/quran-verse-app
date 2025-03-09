@@ -225,9 +225,14 @@ function App() {
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
       <Typography variant="h3" component="h1" align="center" gutterBottom>
-        Quran Verse Finder
+        Quran Verses by Arabic Letters
       </Typography>
       
+
+      <Typography variant="subtitle1" align="center" gutterBottom sx={{ mb: 3 }}>
+        Hear how Arabic letters sound at the beginning, middle, or end of words
+      </Typography>
+
       {lettersLoading ? (
         <Paper elevation={3} style={{ padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <CircularProgress />
