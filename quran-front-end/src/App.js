@@ -225,7 +225,7 @@ function App() {
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
       <Typography variant="h3" component="h1" align="center" gutterBottom>
-        Quran Verses by Arabic Letters
+        Quranic Verses by Arabic Letters
       </Typography>
       
 
