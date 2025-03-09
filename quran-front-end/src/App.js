@@ -18,6 +18,37 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [showMoreLoading, setShowMoreLoading] = useState(false);
   const [error, setError] = useState('');
+  const [lettersLoading, setLettersLoading] = useState(true);
+  
+  // Pre-warm the backend to minimize cold start delay
+  useEffect(() => {
+    const prewarmBackend = async () => {
+      try {
+        console.log('Pre-warming backend...');
+        await axios.get(`${backendUrl}`);
+        console.log('Pre-warm request sent');
+      } catch (err) {
+        console.log('Pre-warming backend attempt made');
+      }
+    };
+    
+    prewarmBackend();
+  }, [backendUrl]);
+  
+  useEffect(() => {
+    const trackVisit = async () => {
+      try {
+        await axios.post(`${backendUrl}/api/track-visit`, {
+          path: window.location.pathname
+        });
+      } catch (err) {
+        console.log('Visit tracking error (non-critical)');
+      }
+    };
+    
+    trackVisit();
+  }, [backendUrl]);
+
   // Test backend connectivity
   useEffect(() => {
     const testBackend = async () => {
@@ -31,10 +62,12 @@ function App() {
     };
     
     testBackend();
-  }, []);
+  }, [backendUrl]);
+
   // Fetch Arabic letters when component mounts
   useEffect(() => {
     async function fetchLetters() {
+      setLettersLoading(true); // Set loading to true at start
       try {
         console.log('Fetching Arabic letters from:', `${backendUrl}/api/letters`);
         const response = await axios.get(`${backendUrl}/api/letters`);
@@ -47,12 +80,25 @@ function App() {
         setLetters(['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 
                   'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 
                   'ن', 'ه', 'و', 'ي']);
+      } finally {
+        setLettersLoading(false); // Set loading to false when done
       }
     }
     
     fetchLetters();
-  }, []);
+  }, [backendUrl]);
+
   const searchVerses = async () => {
+    // Track the search
+  try {
+    await axios.post(`${backendUrl}/api/track-search`, {
+      letter: selectedLetter,
+      position: position
+    });
+  } catch (err) {
+    console.log('Search tracking error (non-critical)');
+  }
+    
     if (!selectedLetter) {
       setError('Please select a letter');
       return;
@@ -136,6 +182,7 @@ function App() {
       setShowMoreLoading(false);
     }
   };
+  
   // Component to highlight words with the letter in the specified position
   const HighlightedText = ({ text, letter, position }) => {
     // Split text into words
@@ -174,83 +221,99 @@ function App() {
       </div>
     );
   };
+  
   return (
     <Container maxWidth="md" style={{ marginTop: '2rem' }}>
       <Typography variant="h3" component="h1" align="center" gutterBottom>
         Quran Verse Finder
       </Typography>
       
-      <Paper elevation={3} style={{ padding: '2rem', marginBottom: '2rem' }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Arabic Letter</InputLabel>
-              <Select
-                value={selectedLetter}
-                onChange={(event) => {
-                  // Add defensive programming to check if event exists and has expected properties
-                  if (event && event.target) {
-                    setSelectedLetter(event.target.value);
-                  } else {
-                    // For MUI v5, sometimes the value is passed directly
-                    setSelectedLetter(event);
-                  }
-                }}
-                label="Arabic Letter"
-              >
-                {letters.map((letter) => (
-                  <MenuItem key={letter} value={letter}>
-                    {letter}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Position</InputLabel>
-              <Select
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-                label="Position"
-              >
-                <MenuItem value="first">First</MenuItem>
-                <MenuItem value="middle">Middle</MenuItem>
-                <MenuItem value="last">Last</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12} sm={4}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              fullWidth
-              style={{ height: '100%' }}
-              onClick={searchVerses}
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Search'}
-            </Button>
-          </Grid>
-        </Grid>
-        
-        {error && (
-          <Typography color="error" style={{ marginTop: '1rem' }}>
-            {error}
+      {lettersLoading ? (
+        <Paper elevation={3} style={{ padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
+          <CircularProgress />
+          <Typography variant="body1" style={{ marginTop: '1rem' }}>
+            Loading application...
           </Typography>
-        )}
-      </Paper>
+        </Paper>
+      ) : (
+        <Paper elevation={3} style={{ padding: '2rem', marginBottom: '2rem' }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel>Arabic Letter</InputLabel>
+                <Select
+                  value={selectedLetter}
+                  onChange={(event) => {
+                    // Add defensive programming to check if event exists and has expected properties
+                    if (event && event.target) {
+                      setSelectedLetter(event.target.value);
+                    } else {
+                      // For MUI v5, sometimes the value is passed directly
+                      setSelectedLetter(event);
+                    }
+                  }}
+                  label="Arabic Letter"
+                >
+                  {letters.map((letter) => (
+                    <MenuItem key={letter} value={letter}>
+                      {letter}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel>Position</InputLabel>
+                <Select
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  label="Position"
+                >
+                  <MenuItem value="first">First</MenuItem>
+                  <MenuItem value="middle">Middle</MenuItem>
+                  <MenuItem value="last">Last</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} sm={4}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                fullWidth
+                style={{ height: '100%' }}
+                onClick={searchVerses}
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} /> : 'Search'}
+              </Button>
+            </Grid>
+          </Grid>
+          
+          {error && (
+            <Typography color="error" style={{ marginTop: '1rem' }}>
+              {error}
+            </Typography>
+          )}
+        </Paper>
+      )}
       
       <Typography variant="h5" component="h2" gutterBottom>
         Verses
       </Typography>
       
-      {verses.length === 0 && !loading && (
+      {verses.length === 0 && !loading && !lettersLoading && (
         <Typography align="center" style={{ marginTop: '2rem' }}>
           No verses found. Try a different search.
         </Typography>
+      )}
+      
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
       )}
       
       {verses.map((verse) => (
@@ -294,7 +357,21 @@ function App() {
           </Button>
         </Box>
       )}
+
+{/* Footer with prayer and contact info */}
+<Box mt={6} mb={4} textAlign="center">
+  <div style={{ borderTop: '1px solid #eaeaea', paddingTop: '20px', marginBottom: '20px' }}></div>
+  <Typography variant="h6" style={{ marginBottom: '12px', fontWeight: 'normal' }}>
+    اللهم صل على سيدنا محمد
+  </Typography>
+  <Typography variant="body2" color="textSecondary">
+    Found an issue? <a href="mailto:your-email@example.com" style={{ color: 'inherit' }}>Contact Us</a>
+  </Typography>
+</Box>
+
+
     </Container>
   );
 }
+
 export default App;
